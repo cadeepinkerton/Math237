@@ -1,0 +1,135 @@
+---
+title: "Spring Break Assignment"
+author: "Cadee Pinkerton, James Owens, Molly Wu"
+date: "4/4/2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(readr)
+library(caret)
+library(lattice)
+library(ggplot2)
+FullertonHousing <- read_csv("FullertonHousing.csv")
+attach(FullertonHousing)
+Fullerton = FullertonHousing
+```
+
+
+Problem 1: In the Fullerton Housing data set, let PRICE be the response and consider BEDS, BATHS, SQUARE_FEET, and YEAR_BUILT to be your predictors. First, fit a multiple linear regression model to this data will all four predictors in the model.
+```{r}
+a=seq(1,195,1)
+b=sample(a,175,replace = F)
+
+
+F.train=Fullerton[b,]
+F.test=Fullerton[-b,]
+
+
+fullerton.price=lm(PRICE~YEAR_BUILT+SQUARE_FEET+BATHS+BEDS,data=F.train)
+fit.price=predict(fullerton.price,newdata=F.test)
+SSE.1=sum((fit.price-PRICE[-b])^2)
+SSE.1
+log(SSE.1)
+```
+
+
+Problem 2: Consider the four possible models that have only one predictor. Using the 5-fold cross validation technique, compare RMSE of the four models. Which one is a better model? 
+```{r}
+Housing=data.frame(FullertonHousing)
+
+
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~BEDS, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~BATHS, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~SQUARE_FEET, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~YEAR_BUILT, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+```
+Out of the four models, the model using square feet as the predictor is the better model.  
+
+Problem 3: Consider all six models that have only two predictors. For example lm(PRICE~BEDS+BATHS). Using the 5-fold cross validation technique, compare the RMSE of the six models. Which one is a better model?
+```{r}
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~BEDS+BATHS, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~BATHS+SQUARE_FEET, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~SQUARE_FEET+YEAR_BUILT, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~YEAR_BUILT+BEDS, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~YEAR_BUILT+BATHS, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~SQUARE_FEET+BEDS, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+```
+Out of the six models, the model using square feet and the year the house was built as the predictors is the better model.
+
+Problem 4: Consider all four possible models that have three predictors. For example lm(PRICE~BEDS+BATHS+ SQUARE_FEET). Using the 5-fold cross validation technique compare the RMSE of the four models. Which one is a better model?
+```{r}
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~BEDS+BATHS+YEAR_BUILT, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~BEDS+BATHS+SQUARE_FEET, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~BATHS+SQUARE_FEET+YEAR_BUILT, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~SQUARE_FEET+YEAR_BUILT+BEDS, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+```
+Out of the four models, the model using square feet, the number of bedrooms, and the number of bathrooms as the predictors is the better model.
+
+Problem 5: Consider the only model that has four predictors. Using the 5-fold cross validation technique, calculate the RMSE of that model.
+```{r}
+ctrl <- trainControl(method = "cv", number = 5) 
+model <- train(PRICE~SQUARE_FEET+YEAR_BUILT+BEDS+BATHS, 
+               data = Housing, method = "lm", trControl = ctrl)
+print(model)
+```
+
+Problem 6: Between all the models you fit to this data in parts  2-5 which one has the lowest RMSE or the best goodness of fit? Is that surprising?
+
+Comparing the RMSE of all the models from problems 2-5, the model with the best goodness of fit is the model with the 3 predictors square feet, the number of bedrooms, and the number of bathrooms. This is surprising because in the past we saw that the better model was usually the one with the largest number of predictors. This assignment showed us that is not always true because our model with four predictors had a larger amount of error. 
